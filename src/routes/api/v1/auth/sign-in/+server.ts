@@ -9,8 +9,13 @@ import {
     REFRESH_EXPIRES_SECONDS,
 } from "$lib/server/auth";
 import * as cookie from "cookie";
+import { getCurrentUser } from "$lib/server/getCurrentUser";
 
 export const POST: RequestHandler = async ({ request }) => {
+    const currentUser = await getCurrentUser(request);
+    if (currentUser) {
+        return new Response(JSON.stringify({ error: "Already signed in" }), { status: 400 });
+    }
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {

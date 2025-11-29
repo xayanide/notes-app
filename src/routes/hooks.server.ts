@@ -1,3 +1,4 @@
+/*
 import { JWT_ACCESS_SECRET } from "$env/static/private";
 import type { Handle } from "@sveltejs/kit";
 import { jwtVerify } from "jose";
@@ -20,3 +21,4 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
     return await resolve(event);
 };
+*/

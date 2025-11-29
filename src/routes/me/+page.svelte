@@ -2,7 +2,7 @@
   export let data;
 </script>
 
-<h1>Your Profile</h1>
+<h1>Your me page</h1>
 
 {#if data.user}
 <p>ID: {data.user.id}</p>
@@ -12,4 +12,5 @@
 {:else}
 <p>You are not signed in.</p>
 <a href="/sign-in">Sign-in</a>
+<a href="/sign-up">Sign-up</a>
 {/if}

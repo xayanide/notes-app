@@ -1,4 +1,4 @@
-import type { Actions } from "@sveltejs/kit";
+import { redirect, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
     default: async (event) => {
@@ -10,9 +10,10 @@ export const actions: Actions = {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ emailOrUsername: identifier, password }),
         });
+        const data = await res.json();
         if (!res.ok) {
-            return { error: await res.text() };
+            return { error: data.error ?? "Unknown error" };
         }
-        return { success: true };
+        throw redirect(303, "/me");
     },
 };

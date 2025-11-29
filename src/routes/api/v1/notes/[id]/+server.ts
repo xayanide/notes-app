@@ -1,4 +1,3 @@
-// GET, PUT, DELETE handlers
 import type { RequestHandler } from "@sveltejs/kit";
 import { prisma } from "$lib/server/database";
 import { noteSchema } from "$lib/server/validators";
@@ -9,7 +8,7 @@ export const GET: RequestHandler = async ({ params, request }) => {
     if (!user) {
         return new Response(null, { status: 401 });
     }
-    const note = await prisma.note.findUnique({ where: { id: params.id } });
+    const note = await prisma.note.findUnique({ where: { id: Number(params.id) } });
     if (!note || note.userId !== user.id) {
         return new Response(null, { status: 404 });
     }
@@ -21,7 +20,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
     if (!user) {
         return new Response(null, { status: 401 });
     }
-    const note = await prisma.note.findUnique({ where: { id: params.id } });
+    const note = await prisma.note.findUnique({ where: { id: Number(params.id) } });
     if (!note || note.userId !== user.id) {
         return new Response(null, { status: 404 });
     }
@@ -30,7 +29,10 @@ export const PUT: RequestHandler = async ({ params, request }) => {
     if (!parsed.success) {
         return new Response(JSON.stringify({ error: parsed.error.message }), { status: 400 });
     }
-    const updated = await prisma.note.update({ where: { id: params.id }, data: parsed.data });
+    const updated = await prisma.note.update({
+        where: { id: Number(params.id) },
+        data: parsed.data,
+    });
     return new Response(JSON.stringify(updated), { status: 200 });
 };
 
@@ -39,10 +41,10 @@ export const DELETE: RequestHandler = async ({ params, request }) => {
     if (!user) {
         return new Response(null, { status: 401 });
     }
-    const note = await prisma.note.findUnique({ where: { id: params.id } });
+    const note = await prisma.note.findUnique({ where: { id: Number(params.id) } });
     if (!note || note.userId !== user.id) {
         return new Response(null, { status: 404 });
     }
-    await prisma.note.delete({ where: { id: params.id } });
+    await prisma.note.delete({ where: { id: Number(params.id) } });
     return new Response(null, { status: 204 });
 };

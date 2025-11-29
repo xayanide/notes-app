@@ -11,6 +11,24 @@ export const POST: RequestHandler = async ({ request }) => {
     }
     const { username, email, password } = parsed.data;
     try {
+        // Check if username or email is already taken
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [{ username }, { email }],
+            },
+        });
+        if (existingUser) {
+            if (existingUser.username === username) {
+                return new Response(JSON.stringify({ error: "Username is already taken" }), {
+                    status: 409,
+                });
+            }
+            if (existingUser.email === email) {
+                return new Response(JSON.stringify({ error: "Email is already taken" }), {
+                    status: 409,
+                });
+            }
+        }
         const hashed = await getHashedPassword(password);
         const user = await prisma.user.create({ data: { username, email, password: hashed } });
         return new Response(
