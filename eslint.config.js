@@ -7,6 +7,7 @@ import { defineConfig } from "eslint/config";
 import globals from "globals";
 import ts from "typescript-eslint";
 import svelteConfig from "./svelte.config.js";
+import eslintConfigPrettier from "eslint-config-prettier"
 
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 
@@ -17,6 +18,7 @@ export default defineConfig(
     ...svelte.configs.recommended,
     prettier,
     ...svelte.configs.prettier,
+    eslintConfigPrettier,
     {
         languageOptions: {
             globals: { ...globals.browser, ...globals.node },
