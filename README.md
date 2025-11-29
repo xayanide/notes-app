@@ -34,8 +34,8 @@
 - Vite
 
 ### Development Tools
-- Code Linter: ESLint
-- Code Formatter: Prettier
+- ESLint (Code linter)
+- Prettier (Opinionated code formatter)
 
 ### Authentication / Security
 - argon2 (Password hashing)
