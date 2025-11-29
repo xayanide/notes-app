@@ -37,34 +37,34 @@ function parseDurationToSeconds(s: string) {
 
 export async function createAccessToken(user: User) {
     const now = Math.floor(Date.now() / 1000);
-    const accessToken = new SignJWT({ userId: user.id, role: user.role });
-    accessToken.setProtectedHeader({ alg: "HS256", typ: "JWT" });
-    accessToken.setIssuedAt(now);
-    accessToken.setExpirationTime(now + ACCESS_EXPIRES_SECONDS);
-    const signedAccessToken = await accessToken.sign(ACCESS_SECRET);
-    return signedAccessToken;
+    const jwtBuilder = new SignJWT({ userId: user.id, role: user.role });
+    jwtBuilder.setProtectedHeader({ alg: "HS256", typ: "JWT" });
+    jwtBuilder.setIssuedAt(now);
+    jwtBuilder.setExpirationTime(now + ACCESS_EXPIRES_SECONDS);
+    const accessToken = await jwtBuilder.sign(ACCESS_SECRET);
+    return accessToken;
 }
 
 export async function createRefreshToken(user: User) {
     const now = Math.floor(Date.now() / 1000);
     const uuid = randomUUID();
-    const refreshToken = new SignJWT({ jti: uuid, userId: user.id });
-    refreshToken.setProtectedHeader({ alg: "HS256", typ: "JWT" });
-    refreshToken.setIssuedAt(now);
-    refreshToken.setExpirationTime(now + REFRESH_EXPIRES_SECONDS);
-    const signedRefreshToken = await refreshToken.sign(REFRESH_SECRET);
+    const jwtBuilder = new SignJWT({ jti: uuid, userId: user.id });
+    jwtBuilder.setProtectedHeader({ alg: "HS256", typ: "JWT" });
+    jwtBuilder.setIssuedAt(now);
+    jwtBuilder.setExpirationTime(now + REFRESH_EXPIRES_SECONDS);
+    const refreshToken = await jwtBuilder.sign(REFRESH_SECRET);
     // persist token so we can revoke / rotate it
     const expiresAt = new Date(Date.now() + REFRESH_EXPIRES_SECONDS * 1000);
     await prisma.refreshToken.create({
-        data: { token: signedRefreshToken, userId: user.id, expiresAt },
+        data: { token: refreshToken, userId: user.id, expiresAt },
     });
-    return signedRefreshToken;
+    return refreshToken;
 }
 
 export async function verifyAccessToken(token: string) {
     try {
         const { payload } = await jwtVerify(token, ACCESS_SECRET);
-        return payload as Record<string, any>;
+        return payload;
     } catch {
         return null;
     }
@@ -73,7 +73,7 @@ export async function verifyAccessToken(token: string) {
 export async function verifyRefreshToken(token: string) {
     try {
         const { payload } = await jwtVerify(token, REFRESH_SECRET);
-        return payload as Record<string, any>;
+        return payload;
     } catch {
         return null;
     }
