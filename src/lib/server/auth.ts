@@ -1,11 +1,10 @@
-// src/lib/server/auth.ts
 import { randomUUID } from "crypto";
 import { prisma } from "./database";
 import * as argon2 from "argon2";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../generated/prisma/client";
 import { ACCESS_TOKEN_EXPIRES, REFRESH_TOKEN_EXPIRES } from "$env/static/private";
-import { ACCESS_SECRET, REFRESH_SECRET } from "./secrets";
+import { ACCESS_SECRET, REFRESH_SECRET } from "./jwtSecrets";
 
 export const ACCESS_EXPIRES_SECONDS = parseDurationToSeconds(ACCESS_TOKEN_EXPIRES || "15m");
 export const REFRESH_EXPIRES_SECONDS = parseDurationToSeconds(REFRESH_TOKEN_EXPIRES || "7d");
