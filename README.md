@@ -56,10 +56,9 @@ npx prisma migrate dev --name meaningful_migration_name
 npx prisma generate
 ```
 
-**Tips:**
-
-* Use a descriptive migration name instead of `meaningful_migration_name`, e.g., `add_user_table`.
-* Always check your changes on a local or development database first.
+> [!TIP]
+> Use a descriptive migration name instead of `meaningful_migration_name`, e.g., `add_user_table`.
+> Always check your changes on a local or development database first.
 
 ### 3. Backup the database
 
