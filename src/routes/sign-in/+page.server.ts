@@ -14,6 +14,6 @@ export const actions: Actions = {
             const data = await res.json();
             return { error: data.error ?? "Unknown error" };
         }
-        throw redirect(303, "/");
+        throw redirect(303, "/me");
     },
 };
