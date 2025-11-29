@@ -43,6 +43,9 @@
 - cookie (Cookie parsing)
 - cookie-signature (Signing cookies)
 
+### General Schema Validator
+- zod
+
 ### Environment Management
 - dotenv
 
