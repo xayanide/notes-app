@@ -121,6 +121,48 @@ This will open Prisma Studio in your default web browser. You can view all table
 > Any changes made in Studio are reflected immediately in your database.
 > It is a useful tool for quick testing, seeding, or manual edits during development, but it should not replace proper application logic for production.
 
+### 7. Seeding the Database
+
+Prisma allows you to prepopulate your database with initial data using a **seed script**.
+
+#### 1. Create a seed script
+- By default, Prisma looks for a script defined in `package.json` under `"prisma": { "seed": "..." }`.
+- Example: create `prisma/seed.ts` (TypeScript) or `prisma/seed.js` (JavaScript) with your seed data:
+
+```ts
+import "dotenv/config";
+import { PrismaClient } from "../src/generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({ adapter });
+
+export async function main() {}
+
+try {
+    await main();
+} catch (err) {
+    if (err instanceof Error) {
+        console.error(`Encountered error while seeding\n${err.message}\n${err.stack}`);
+    }
+} finally {
+    await prisma.$disconnect();
+}
+```
+
+2. Run the seed script
+```
+npx prisma db seed
+```
+This executes your seed script and inserts the predefined data into the database. Useful for development, testing, or initializing default records.
+
+> [!NOTES]
+> Always ensure migrations are applied (npx prisma migrate dev) before seeding.
+> Avoid seeding sensitive or production data directly from the seed script.
+
 ## Tech Stack
 
 ### Git Repository Hosting Service
