@@ -46,5 +46,5 @@ export const DELETE: RequestHandler = async ({ params, request }) => {
         return json(null, { status: 404 });
     }
     await prisma.note.delete({ where: { id: Number(params.id) } });
-    return json(null, { status: 204 });
+    return new Response(null, { status: 204 });
 };
