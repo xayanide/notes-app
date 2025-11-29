@@ -89,7 +89,8 @@ psql -U your_db_user -h localhost -p 5432 your_db_name < backup.sql
 createdb -U your_db_user -h localhost your_db_name
 ```
 
-For more information refer to DB_BACKUP.md
+> [!TIP]
+> For more information about exporting and restoring the database, please go to `DB_BACKUP.md`
 
 ### 5. Resetting the database (development only)
 
@@ -99,8 +100,27 @@ If you want to reset the database completely and reapply migrations:
 npx prisma migrate reset
 ```
 
-* This will **erase all data** in the database, reapply all migrations, and regenerate the Prisma client.
-* Only use this in development, never in production.
+> [!WARNING]
+> This will **erase all data** in the database, reapply all migrations, and regenerate the Prisma client.
+> Only use this in development, never in production.
+
+### 6. Built in Administration CRUD in Prisma
+
+Prisma provides a GUI called **Prisma Studio** that allows you to view and manage your database data without writing SQL queries.
+
+#### Opening Prisma Studio
+Run the following command:
+
+```sh
+npx prisma studio
+```
+
+This will open Prisma Studio in your default web browser. You can view all tables (models) and their records. You can create, read, update, and delete records directly from the UI.
+
+> [!NOTE]
+> Prisma Studio works with your development database by default.
+> Any changes made in Studio are reflected immediately in your database.
+> It is a useful tool for quick testing, seeding, or manual edits during development, but it should not replace proper application logic for production.
 
 ## Tech Stack
 
