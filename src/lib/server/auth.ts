@@ -5,6 +5,8 @@ import { SignJWT, jwtVerify } from "jose";
 import type { RefreshToken, User } from "../../generated/prisma/client";
 import { ACCESS_TOKEN_EXPIRES, REFRESH_TOKEN_EXPIRES } from "$env/static/private";
 import { ACCESS_SECRET, REFRESH_SECRET } from "./jwtSecrets";
+import { dev } from "$app/environment";
+import * as cookie from "cookie";
 
 export const ACCESS_EXPIRES_SECONDS = parseDurationToSeconds(ACCESS_TOKEN_EXPIRES || "15m");
 export const REFRESH_EXPIRES_SECONDS = parseDurationToSeconds(REFRESH_TOKEN_EXPIRES || "7d");
@@ -88,4 +90,43 @@ export async function revokeRefreshToken(token: string) {
 export async function rotateRefreshToken(oldToken: string, user: User) {
   await revokeRefreshToken(oldToken);
   return await createRefreshToken(user);
+}
+
+export function getNewTokenHeaders(acessToken: string, refreshToken: string) {
+  const isProduction = dev === false;
+  const headers = new Headers();
+  headers.append(
+    "Set-Cookie",
+    cookie.serialize("access_token", acessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      path: "/",
+      maxAge: ACCESS_EXPIRES_SECONDS,
+    }),
+  );
+  headers.append(
+    "Set-Cookie",
+    cookie.serialize("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      path: "/",
+      maxAge: REFRESH_EXPIRES_SECONDS,
+    }),
+  );
+  return headers;
+}
+
+export function getClearTokenHeaders() {
+  const headers = new Headers();
+  headers.append(
+    "Set-Cookie",
+    cookie.serialize("access_token", "", { httpOnly: true, path: "/", maxAge: 0 }),
+  );
+  headers.append(
+    "Set-Cookie",
+    cookie.serialize("refresh_token", "", { httpOnly: true, path: "/", maxAge: 0 }),
+  );
+  return headers;
 }

@@ -3,7 +3,7 @@ import { prisma } from "$lib/server/database";
 import { signInSchema } from "$lib/server/validators";
 import { verifyPassword, createAccessToken, createRefreshToken } from "$lib/server/auth";
 import { getCurrentUser } from "$lib/server/getCurrentUser";
-import { getNewTokenHeaders } from "$lib/server/authTokens";
+import { getNewTokenHeaders } from "$lib/server/auth";
 
 export const POST: RequestHandler = async ({ request }) => {
   const currentUser = await getCurrentUser(request);

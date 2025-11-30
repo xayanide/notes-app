@@ -9,6 +9,7 @@ export async function getCurrentUser(request: Request) {
     return null;
   }
   const payload = await verifyAccessToken(accessToken);
+  console.log(payload);
   if (!payload) {
     return null;
   }

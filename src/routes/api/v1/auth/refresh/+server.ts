@@ -2,7 +2,7 @@ import { json, type RequestHandler } from "@sveltejs/kit";
 import { prisma } from "$lib/server/database";
 import * as cookie from "cookie";
 import { verifyRefreshToken, createAccessToken, rotateRefreshToken } from "$lib/server/auth";
-import { getNewTokenHeaders } from "$lib/server/authTokens";
+import { getNewTokenHeaders } from "$lib/server/auth";
 
 export const POST: RequestHandler = async ({ request }) => {
   const cookies = cookie.parse(request.headers.get("cookie") || "");
