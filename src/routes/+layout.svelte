@@ -14,7 +14,7 @@
     {#if data.user}
       <a href="/me">Me</a>
       <a href="/notes">Notes</a>
-      <a href="/sign-out">Sign-out</a>
+      <a href="/sign-out">Sign-out (Signed in as {data.user.username})</a>
     {:else}
       <a href="/sign-in">Sign-in</a>
       <a href="/sign-up">Sign-up</a>
