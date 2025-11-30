@@ -108,12 +108,12 @@ export async function rotateRefreshToken(oldToken: string, user: User) {
   return await createRefreshToken(user);
 }
 
-export function getNewTokenHeaders(acessToken: string, refreshToken: string) {
+export function getNewTokenHeaders(accessToken: string, refreshToken: string) {
   const isProduction = dev === false;
   const headers = new Headers();
   headers.append(
     "Set-Cookie",
-    cookie.serialize("access_token", acessToken, {
+    cookie.serialize("access_token", accessToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "lax",
