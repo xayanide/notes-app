@@ -1,16 +1,9 @@
 import { json, type RequestHandler } from "@sveltejs/kit";
 import { prisma } from "$lib/server/database";
 import { signInSchema } from "$lib/server/validators";
-import {
-  verifyPassword,
-  createAccessToken,
-  createRefreshToken,
-  ACCESS_EXPIRES_SECONDS,
-  REFRESH_EXPIRES_SECONDS,
-} from "$lib/server/auth";
-import * as cookie from "cookie";
+import { verifyPassword, createAccessToken, createRefreshToken } from "$lib/server/auth";
 import { getCurrentUser } from "$lib/server/getCurrentUser";
-import { dev } from "$app/environment";
+import { getNewTokenHeaders } from "$lib/server/authTokens";
 
 export const POST: RequestHandler = async ({ request }) => {
   const currentUser = await getCurrentUser(request);
@@ -35,26 +28,6 @@ export const POST: RequestHandler = async ({ request }) => {
   }
   const accessToken = await createAccessToken(user);
   const refreshToken = await createRefreshToken(user);
-  const accessMaxAge = ACCESS_EXPIRES_SECONDS; // 15m in seconds; align with ACCESS_TOKEN_EXPIRES
-  const refreshMaxAge = REFRESH_EXPIRES_SECONDS;
-  const isProduction = dev === false;
-  const headers = {
-    "Set-Cookie": [
-      cookie.serialize("access_token", accessToken, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: "lax",
-        path: "/",
-        maxAge: accessMaxAge,
-      }),
-      cookie.serialize("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: "lax",
-        path: "/",
-        maxAge: refreshMaxAge,
-      }),
-    ],
-  };
+  const headers = getNewTokenHeaders(accessToken, refreshToken);
   return json({ message: "ok" }, { status: 200, headers });
 };
