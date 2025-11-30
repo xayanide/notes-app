@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "./database";
 import * as argon2 from "argon2";
 import { SignJWT, jwtVerify } from "jose";
-import type { User } from "../../generated/prisma/client";
+import type { RefreshToken, User } from "../../generated/prisma/client";
 import { ACCESS_TOKEN_EXPIRES, REFRESH_TOKEN_EXPIRES } from "$env/static/private";
 import { ACCESS_SECRET, REFRESH_SECRET } from "./jwtSecrets";
 
@@ -64,7 +64,7 @@ export async function createRefreshToken(user: User) {
 export async function verifyAccessToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, ACCESS_SECRET);
-    return payload;
+    return payload as RefreshToken;
   } catch {
     return null;
   }
@@ -73,7 +73,7 @@ export async function verifyAccessToken(token: string) {
 export async function verifyRefreshToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, REFRESH_SECRET);
-    return payload;
+    return payload as RefreshToken;
   } catch {
     return null;
   }

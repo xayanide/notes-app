@@ -14,17 +14,16 @@ export const POST: RequestHandler = async ({ request }) => {
   if (!payload) {
     return json(null, { status: 401 });
   }
-  // check DB presence and expiry
   const tokenRow = await prisma.refreshToken.findUnique({ where: { token: refreshToken } });
+  // token not found in db or expired so do not issue new tokens
   if (!tokenRow || tokenRow.expiresAt < new Date()) {
     return json(null, { status: 401 });
   }
-  // rotate: delete old token, issue new refresh token and new access token
-  const user = await prisma.user.findUnique({ where: { id: (payload as any).userId } });
+  const user = await prisma.user.findUnique({ where: { id: payload.userId } });
   if (!user) {
     return json(null, { status: 401 });
   }
-  // createRefreshToken persists it
+  // createRefreshToken in rotateRefreshToken persists and saves it
   const newRefreshToken = await rotateRefreshToken(refreshToken, user);
   const newAccessToken = await createAccessToken(user);
   const headers = getNewTokenHeaders(newAccessToken, newRefreshToken);
