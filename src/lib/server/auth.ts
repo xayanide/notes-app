@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "./database";
 import * as argon2 from "argon2";
 import { SignJWT, jwtVerify } from "jose";
-import type { RefreshToken, User } from "../../generated/prisma/client";
+import type { User } from "../../generated/prisma/client";
 import { ACCESS_TOKEN_EXPIRES, REFRESH_TOKEN_EXPIRES } from "$env/static/private";
 import { ACCESS_SECRET, REFRESH_SECRET } from "./jwtSecrets";
 import { dev } from "$app/environment";
@@ -10,6 +10,20 @@ import * as cookie from "cookie";
 
 export const ACCESS_EXPIRES_SECONDS = parseDurationToSeconds(ACCESS_TOKEN_EXPIRES || "15m");
 export const REFRESH_EXPIRES_SECONDS = parseDurationToSeconds(REFRESH_TOKEN_EXPIRES || "7d");
+
+type AccessTokenPayload = {
+  userId: number;
+  role: string;
+  iat: number;
+  exp: number;
+};
+
+type RefreshTokenPayload = {
+  userId: number;
+  jti: string;
+  iat: number;
+  exp: number;
+};
 
 export async function getHashedPassword(password: string) {
   // argon2id is used by default in many argon2 packages; adjust options for your hardware
@@ -50,7 +64,7 @@ export async function createAccessToken(user: User) {
 export async function createRefreshToken(user: User) {
   const now = Math.floor(Date.now() / 1000);
   const uuid = randomUUID();
-  const jwtBuilder = new SignJWT({ jti: uuid, userId: user.id });
+  const jwtBuilder = new SignJWT({ userId: user.id, jti: uuid });
   jwtBuilder.setProtectedHeader({ alg: "HS256", typ: "JWT" });
   jwtBuilder.setIssuedAt(now);
   jwtBuilder.setExpirationTime(now + REFRESH_EXPIRES_SECONDS);
@@ -66,7 +80,7 @@ export async function createRefreshToken(user: User) {
 export async function verifyAccessToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, ACCESS_SECRET);
-    return payload as RefreshToken;
+    return payload as AccessTokenPayload;
   } catch {
     return null;
   }
@@ -75,7 +89,7 @@ export async function verifyAccessToken(token: string) {
 export async function verifyRefreshToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, REFRESH_SECRET);
-    return payload as RefreshToken;
+    return payload as RefreshTokenPayload;
   } catch {
     return null;
   }
