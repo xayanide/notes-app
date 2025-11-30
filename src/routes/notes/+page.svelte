@@ -8,7 +8,6 @@
 
 {#if !data.error}
   <h1>Your Notes</h1>
-  <p><a href="/me">Back to home</a></p>
   <section>
     <h2>Add a New Note</h2>
     <form method="post">
