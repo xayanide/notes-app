@@ -1,12 +1,22 @@
 <script lang="ts">
   import "./layout.css";
-  import favicon from "$lib/assets/favicon.svg";
-
-  let { children } = $props();
+  export let data;
 </script>
 
-<svelte:head>
-  <link rel="icon" href={favicon} />
-</svelte:head>
+<header>
+  <nav>
+    <a href="/">Home</a>
+    {#if data.user}
+      <a href="/notes">Notes</a>
+      <a href="/change-password">Change Password</a>
+      <a href="/sign-out">Sign-out</a>
+    {:else}
+      <a href="/sign-in">Sign-in</a>
+      <a href="/sign-up">Sign-up</a>
+    {/if}
+  </nav>
+</header>
 
-{@render children()}
+<main>
+  <slot />
+</main>

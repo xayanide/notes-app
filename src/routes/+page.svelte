@@ -1,6 +1,5 @@
-<h1>Welcome to notes-app</h1>
+<svelte:head>
+  <title>Welcome - Notes</title>
+</svelte:head>
 
-<a href="/sign-in">Sign-in</a>
-<a href="/sign-up">Sign-up</a>
-
-<a href="/notes">Notes</a>
+<h1>Welcome to notes</h1>
