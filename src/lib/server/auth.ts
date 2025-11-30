@@ -11,6 +11,8 @@ import * as cookie from "cookie";
 export const ACCESS_EXPIRES_SECONDS = parseDurationToSeconds(ACCESS_TOKEN_EXPIRES || "15m");
 export const REFRESH_EXPIRES_SECONDS = parseDurationToSeconds(REFRESH_TOKEN_EXPIRES || "7d");
 
+const JWT_PROTECTED_HEADERS = { alg: "HS256", typ: "JWT" };
+
 type AccessTokenPayload = {
   userId: number;
   role: string;
@@ -54,7 +56,7 @@ function parseDurationToSeconds(s: string) {
 export async function createAccessToken(user: User) {
   const now = Math.floor(Date.now() / 1000);
   const jwtBuilder = new SignJWT({ userId: user.id, role: user.role });
-  jwtBuilder.setProtectedHeader({ alg: "HS256", typ: "JWT" });
+  jwtBuilder.setProtectedHeader(JWT_PROTECTED_HEADERS);
   jwtBuilder.setIssuedAt(now);
   jwtBuilder.setExpirationTime(now + ACCESS_EXPIRES_SECONDS);
   const accessToken = await jwtBuilder.sign(ACCESS_SECRET);
@@ -65,7 +67,7 @@ export async function createRefreshToken(user: User) {
   const now = Math.floor(Date.now() / 1000);
   const uuid = randomUUID();
   const jwtBuilder = new SignJWT({ userId: user.id, jti: uuid });
-  jwtBuilder.setProtectedHeader({ alg: "HS256", typ: "JWT" });
+  jwtBuilder.setProtectedHeader(JWT_PROTECTED_HEADERS);
   jwtBuilder.setIssuedAt(now);
   jwtBuilder.setExpirationTime(now + REFRESH_EXPIRES_SECONDS);
   const refreshToken = await jwtBuilder.sign(REFRESH_SECRET);
