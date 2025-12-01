@@ -9,5 +9,5 @@ export const POST: RequestHandler = async ({ request }) => {
     await revokeRefreshToken(refreshToken);
   }
   const headers = getClearTokenHeaders();
-  return json({ message: "signed out" }, { status: 200, headers });
+  return json({ message: "ok" }, { status: 200, headers });
 };

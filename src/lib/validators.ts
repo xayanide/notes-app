@@ -10,7 +10,7 @@ export const signUpSchema = z.object({
       /^(?!-)(?!.*--)[a-zA-Z0-9-]+(?<!-)$/,
       "Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen",
     ),
-  email: z.string().nonempty("Email cannot be blank").email(),
+  email: z.email(),
   password: z
     .string()
     .nonempty("Password cannot be blank")

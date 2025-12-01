@@ -77,10 +77,7 @@ export async function verifyAccessToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, ACCESS_SECRET);
     return payload as AccessTokenPayload;
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error(`verifyAccessToken(): ${err.message}\n${err.stack}`);
-    }
+  } catch {
     return null;
   }
 }
@@ -89,10 +86,7 @@ export async function verifyRefreshToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, REFRESH_SECRET);
     return payload as RefreshTokenPayload;
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error(`verifyAccessToken(): ${err.message}\n${err.stack}`);
-    }
+  } catch {
     return null;
   }
 }

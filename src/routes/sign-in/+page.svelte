@@ -16,7 +16,8 @@
   <button type="submit">Sign in</button>
 </form>
 
-Already have an account?<a href="/sign-in">Sign in</a>
+New?
+<a href="/sign-up">Sign up</a>
 
 {#if form?.error}
   <p style="color:red">{form.error}</p>
