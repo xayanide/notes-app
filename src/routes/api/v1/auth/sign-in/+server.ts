@@ -4,7 +4,7 @@ import { signInSchema } from "$lib/validators";
 import { verifyPassword, createAccessToken, createRefreshToken } from "$lib/server/auth";
 import { getNewTokenHeaders } from "$lib/server/auth";
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, cookies }) => {
   const localUser = locals.user;
   if (localUser) {
     return json("You are already signed in", { status: 200 });
@@ -27,6 +27,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   }
   const accessToken = await createAccessToken(user);
   const refreshToken = await createRefreshToken(user);
-  const headers = getNewTokenHeaders(accessToken, refreshToken);
+  const headers = getNewTokenHeaders(cookies, accessToken, refreshToken);
   return json({ message: "ok" }, { status: 200, headers });
 };

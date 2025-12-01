@@ -10,8 +10,8 @@ import {
   JWT_REFRESH_SECRET,
 } from "$env/static/private";
 import { dev } from "$app/environment";
-import * as cookie from "cookie";
 import parseDuration from "parse-duration";
+import type { Cookies } from "@sveltejs/kit";
 
 const textEncoder = new TextEncoder();
 
@@ -100,12 +100,34 @@ export async function rotateRefreshToken(oldToken: string, user: User) {
   return await createRefreshToken(user);
 }
 
-export function getNewTokenHeaders(accessToken: string, refreshToken: string) {
+export function setRequestEventNewCookies(
+  cookies: Cookies,
+  accessToken: string,
+  refreshToken: string,
+) {
+  const isProduction = dev === false;
+  cookies.set("access_token", accessToken, {
+    path: "/",
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    maxAge: ACCESS_EXPIRES_SECONDS,
+  });
+  cookies.set("refresh_token", refreshToken, {
+    path: "/",
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    maxAge: REFRESH_EXPIRES_SECONDS,
+  });
+}
+
+export function getNewTokenHeaders(cookies: Cookies, accessToken: string, refreshToken: string) {
   const isProduction = dev === false;
   const headers = new Headers();
   headers.append(
     "Set-Cookie",
-    cookie.serialize("access_token", accessToken, {
+    cookies.serialize("access_token", accessToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "lax",
@@ -115,7 +137,7 @@ export function getNewTokenHeaders(accessToken: string, refreshToken: string) {
   );
   headers.append(
     "Set-Cookie",
-    cookie.serialize("refresh_token", refreshToken, {
+    cookies.serialize("refresh_token", refreshToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: "lax",
@@ -126,22 +148,21 @@ export function getNewTokenHeaders(accessToken: string, refreshToken: string) {
   return headers;
 }
 
-export function getClearTokenHeaders() {
+export function getClearTokenHeaders(cookies: Cookies) {
   const headers = new Headers();
   headers.append(
     "Set-Cookie",
-    cookie.serialize("access_token", "", { httpOnly: true, path: "/", maxAge: 0 }),
+    cookies.serialize("access_token", "", { httpOnly: true, path: "/", maxAge: 0 }),
   );
   headers.append(
     "Set-Cookie",
-    cookie.serialize("refresh_token", "", { httpOnly: true, path: "/", maxAge: 0 }),
+    cookies.serialize("refresh_token", "", { httpOnly: true, path: "/", maxAge: 0 }),
   );
   return headers;
 }
 
-export async function getCurrentUser(request: Request) {
-  const cookies = cookie.parse(request.headers.get("cookie") || "");
-  const accessToken = cookies.access_token;
+export async function getCurrentUser(cookies: Cookies) {
+  const accessToken = cookies.get("access_token");
   if (!accessToken) {
     return null;
   }
@@ -156,9 +177,8 @@ export async function getCurrentUser(request: Request) {
   return getSanitizedUser(user);
 }
 
-export async function refreshAccessToken(request: Request) {
-  const cookies = cookie.parse(request.headers.get("cookie") || "");
-  const refreshToken = cookies.refresh_token;
+export async function refreshAccessToken(cookies: Cookies) {
+  const refreshToken = cookies.get("refresh_token");
   if (!refreshToken) {
     return null;
   }
@@ -180,11 +200,8 @@ export async function refreshAccessToken(request: Request) {
   }
   const newRefreshToken = await rotateRefreshToken(refreshToken, user);
   const newAccessToken = await createAccessToken(user);
-  const headers = getNewTokenHeaders(newAccessToken, newRefreshToken);
-  return {
-    user: getSanitizedUser(user),
-    headers,
-  };
+  setRequestEventNewCookies(cookies, newAccessToken, newRefreshToken);
+  return getSanitizedUser(user);
 }
 
 export function getSanitizedUser(user: User) {
