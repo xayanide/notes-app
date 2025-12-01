@@ -95,8 +95,8 @@ export async function revokeRefreshToken(token: string) {
   return await prisma.refreshToken.deleteMany({ where: { token } });
 }
 
-export async function rotateRefreshToken(oldToken: string, user: User) {
-  await revokeRefreshToken(oldToken);
+export async function rotateRefreshToken(user: User, token: string) {
+  await revokeRefreshToken(token);
   return await createRefreshToken(user);
 }
 
@@ -194,7 +194,7 @@ export async function refreshAccessToken(cookies: Cookies) {
   if (!user) {
     return null;
   }
-  const newRefreshToken = await rotateRefreshToken(refreshToken, user);
+  const newRefreshToken = await rotateRefreshToken(user, refreshToken);
   const newAccessToken = await createAccessToken(user);
   setNewCookies(cookies, newAccessToken, newRefreshToken);
   return getSanitizedUser(user);
