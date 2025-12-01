@@ -7,5 +7,5 @@ export const POST: RequestHandler = async ({ cookies }) => {
     await revokeRefreshToken(refreshToken);
   }
   deleteCookies(cookies);
-  return json(null, { status: 200 });
+  return json({ message: "ok" }, { status: 200 });
 };
