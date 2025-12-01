@@ -9,7 +9,7 @@
 </svelte:head>
 
 <header>
-  {data.user ? `Hello, ${data.user.name}` : "Hello"}
+  {data.user.name ? `Hello, ${data.user.name}` : `Hello, ${data.user.username}`}
   <nav>
     <a href="/">Home</a>
     {#if data.user}
