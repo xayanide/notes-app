@@ -234,6 +234,10 @@ This executes your seed script and inserts the predefined data into the database
 
 - dotenv
 
+### Time String Parser
+
+- parse-duration
+
 ---
 
 The rest of the README below is auto-generated `npx sv create myapp`
