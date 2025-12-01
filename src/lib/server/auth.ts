@@ -100,11 +100,7 @@ export async function rotateRefreshToken(oldToken: string, user: User) {
   return await createRefreshToken(user);
 }
 
-export function setRequestEventNewCookies(
-  cookies: Cookies,
-  accessToken: string,
-  refreshToken: string,
-) {
+export function setNewCookies(cookies: Cookies, accessToken: string, refreshToken: string) {
   const isProduction = dev === false;
   cookies.set("access_token", accessToken, {
     path: "/",
@@ -200,7 +196,7 @@ export async function refreshAccessToken(cookies: Cookies) {
   }
   const newRefreshToken = await rotateRefreshToken(refreshToken, user);
   const newAccessToken = await createAccessToken(user);
-  setRequestEventNewCookies(cookies, newAccessToken, newRefreshToken);
+  setNewCookies(cookies, newAccessToken, newRefreshToken);
   return getSanitizedUser(user);
 }
 
