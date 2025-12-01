@@ -1,7 +1,7 @@
 <script lang="ts">
   import "./layout.css";
   import favicon from "$lib/assets/favicon.svg";
-  export let data;
+  let { data, children } = $props();
 </script>
 
 <svelte:head>
@@ -22,6 +22,4 @@
   </nav>
 </header>
 
-<main>
-  <slot />
-</main>
+{@render children?.()}
