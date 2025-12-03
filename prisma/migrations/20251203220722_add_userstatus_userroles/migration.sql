@@ -1,0 +1,8 @@
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('PENDING', 'INACTIVE', 'ACTIVE', 'BANNED');
+
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('REGULAR', 'ADMIN');
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "status" TEXT NOT NULL DEFAULT 'PENDING';
