@@ -10,7 +10,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function getHashedPassword(password: string) {
-  return argon2.hash(password, { type: argon2.argon2id });
+  return await argon2.hash(password, { type: argon2.argon2id });
 }
 
 export async function main() {
@@ -23,6 +23,7 @@ export async function main() {
       username: "user",
       email: "user@example.com",
       password: await getHashedPassword("userpass"),
+      status: "ACTIVE",
       role: "REGULAR",
     },
   });
@@ -31,6 +32,7 @@ export async function main() {
       username: "admin",
       email: "admin@example.com",
       password: await getHashedPassword("adminpass"),
+      status: "ACTIVE",
       role: "ADMIN",
     },
   });
