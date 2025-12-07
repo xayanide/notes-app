@@ -1,3 +1,4 @@
+// hybrid stateful jwt based session system
 import * as nodeCrypto from "node:crypto";
 import { prisma } from "./database";
 import * as argon2 from "argon2";
@@ -140,6 +141,21 @@ export function setNewCookies(cookies: Cookies, accessToken: string, refreshToke
   });
 }
 
+export function deleteCookies(cookies: Cookies) {
+  cookies.delete("access_token", {
+    httpOnly: true,
+    secure: IS_WEB_PRODUCTION,
+    sameSite: "lax",
+    path: "/",
+  });
+  cookies.delete("refresh_token", {
+    httpOnly: true,
+    secure: IS_WEB_PRODUCTION,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
 export function getNewTokenHeaders(cookies: Cookies, accessToken: string, refreshToken: string) {
   const headers = new Headers();
   headers.append(
@@ -163,21 +179,6 @@ export function getNewTokenHeaders(cookies: Cookies, accessToken: string, refres
     }),
   );
   return headers;
-}
-
-export function deleteCookies(cookies: Cookies) {
-  cookies.delete("access_token", {
-    httpOnly: true,
-    secure: IS_WEB_PRODUCTION,
-    sameSite: "lax",
-    path: "/",
-  });
-  cookies.delete("refresh_token", {
-    httpOnly: true,
-    secure: IS_WEB_PRODUCTION,
-    sameSite: "lax",
-    path: "/",
-  });
 }
 
 export function getDeleteTokenHeaders(cookies: Cookies) {
