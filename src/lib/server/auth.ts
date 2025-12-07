@@ -124,7 +124,7 @@ export async function rotateRefreshToken(user: User, token: string) {
   return await createRefreshToken(user);
 }
 
-export function setNewCookies(cookies: Cookies, accessToken: string, refreshToken: string) {
+export function setSessionCookies(cookies: Cookies, accessToken: string, refreshToken: string) {
   cookies.set("access_token", accessToken, {
     path: "/",
     httpOnly: true,
@@ -141,7 +141,7 @@ export function setNewCookies(cookies: Cookies, accessToken: string, refreshToke
   });
 }
 
-export function deleteCookies(cookies: Cookies) {
+export function deleteSessionCookies(cookies: Cookies) {
   cookies.delete("access_token", {
     httpOnly: true,
     secure: IS_WEB_PRODUCTION,
@@ -156,7 +156,7 @@ export function deleteCookies(cookies: Cookies) {
   });
 }
 
-export function getNewTokenHeaders(cookies: Cookies, accessToken: string, refreshToken: string) {
+export function getNewSessionHeaders(cookies: Cookies, accessToken: string, refreshToken: string) {
   const headers = new Headers();
   headers.append(
     "Set-Cookie",
@@ -181,7 +181,7 @@ export function getNewTokenHeaders(cookies: Cookies, accessToken: string, refres
   return headers;
 }
 
-export function getDeleteTokenHeaders(cookies: Cookies) {
+export function getDeleteSessionHeaders(cookies: Cookies) {
   const headers = new Headers();
   headers.append(
     "Set-Cookie",
@@ -204,6 +204,12 @@ export function getDeleteTokenHeaders(cookies: Cookies) {
     }),
   );
   return headers;
+}
+
+export async function signInUser(user: User, cookies: Cookies) {
+  const accessToken = await createAccessToken(user);
+  const refreshToken = await createRefreshToken(user);
+  setSessionCookies(cookies, accessToken, refreshToken);
 }
 
 export async function getCurrentUserOrRefresh(cookies: Cookies) {
@@ -247,7 +253,7 @@ export async function getCurrentUserOrRefresh(cookies: Cookies) {
     }
     const newRefreshToken = await rotateRefreshToken(tokenRow.user, refreshToken);
     const newAccessToken = await createAccessToken(tokenRow.user);
-    setNewCookies(cookies, newAccessToken, newRefreshToken);
+    setSessionCookies(cookies, newAccessToken, newRefreshToken);
     return getSanitizedUser(tokenRow.user);
   });
   return result;

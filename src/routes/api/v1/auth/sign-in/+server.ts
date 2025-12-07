@@ -5,7 +5,7 @@ import {
   verifyPassword,
   createAccessToken,
   createRefreshToken,
-  setNewCookies,
+  setSessionCookies,
 } from "$lib/server/auth";
 
 export const POST: RequestHandler = async ({ request, locals, cookies }) => {
@@ -44,6 +44,6 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
   }
   const accessToken = await createAccessToken(user);
   const refreshToken = await createRefreshToken(user);
-  setNewCookies(cookies, accessToken, refreshToken);
+  setSessionCookies(cookies, accessToken, refreshToken);
   return json({ message: "Signed in successfully" }, { status: 200 });
 };
