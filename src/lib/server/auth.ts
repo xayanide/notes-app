@@ -221,78 +221,35 @@ export async function getCurrentUserOrRefresh(cookies: Cookies) {
     }
   }
   const refreshToken = cookies.get("refresh_token");
-  if (refreshToken) {
-    const refreshTokenPayload = await verifyRefreshToken(refreshToken);
-    if (refreshTokenPayload) {
-      const tokenRow = await prisma.refreshToken.findUnique({
-        where: { token: refreshToken },
-        include: { user: true },
-      });
-      if (
-        tokenRow &&
-        tokenRow.expiresAt.getTime() > Date.now() &&
-        !["PENDING", "INACTIVE", "BANNED"].includes(tokenRow.user.status)
-      ) {
-        const newRefreshToken = await rotateRefreshToken(tokenRow.user, refreshToken);
-        const newAccessToken = await createAccessToken(tokenRow.user);
-        setNewCookies(cookies, newAccessToken, newRefreshToken);
-        return getSanitizedUser(tokenRow.user);
-      }
-    }
-  }
-  return null;
-}
-
-export async function getCurrentUser(cookies: Cookies) {
-  const accessToken = cookies.get("access_token");
-  if (!accessToken) {
-    return null;
-  }
-  const payload = await verifyAccessToken(accessToken);
-  if (!payload) {
-    return null;
-  }
-  const user = await prisma.user.findUnique({ where: { id: payload.userId } });
-  if (!user) {
-    return null;
-  }
-  if (payload.version !== user.accessTokenVersion) {
-    return null;
-  }
-  if (["PENDING", "INACTIVE", "BANNED"].includes(user.status)) {
-    return null;
-  }
-  return getSanitizedUser(user);
-}
-
-export async function refreshAccessToken(cookies: Cookies) {
-  const refreshToken = cookies.get("refresh_token");
   if (!refreshToken) {
     return null;
   }
-  const payload = await verifyRefreshToken(refreshToken);
-  if (!payload) {
+  const refreshTokenPayload = await verifyRefreshToken(refreshToken);
+  if (!refreshTokenPayload) {
     return null;
   }
-  const tokenRow = await prisma.refreshToken.findUnique({ where: { token: refreshToken } });
-  if (!tokenRow) {
+  const now = Math.floor(Date.now() / 1000);
+  if (refreshTokenPayload.exp <= now) {
     return null;
   }
-  const isTokenExpired = tokenRow.expiresAt.getTime() <= Date.now();
-  if (isTokenExpired) {
-    return null;
-  }
-  const user = await prisma.user.findUnique({ where: { id: payload.userId } });
-  if (!user) {
-    return null;
-  }
-  if (["PENDING", "INACTIVE", "BANNED"].includes(user.status)) {
-    return null;
-  }
-  const newRefreshToken = await rotateRefreshToken(user, refreshToken);
-  const newAccessToken = await createAccessToken(user);
-  setNewCookies(cookies, newAccessToken, newRefreshToken);
-  return getSanitizedUser(user);
+  const result = await prisma.$transaction(async (tx) => {
+    const tokenRow = await tx.refreshToken.findUnique({
+      where: { token: refreshToken },
+      include: { user: true },
+    });
+    if (
+      !tokenRow ||
+      tokenRow.expiresAt.getTime() <= Date.now() ||
+      ["PENDING", "INACTIVE", "BANNED"].includes(tokenRow.user.status)
+    ) {
+      return null;
+    }
+    const newRefreshToken = await rotateRefreshToken(tokenRow.user, refreshToken);
+    const newAccessToken = await createAccessToken(tokenRow.user);
+    setNewCookies(cookies, newAccessToken, newRefreshToken);
+    return getSanitizedUser(tokenRow.user);
+  });
+  return result;
 }
 
 export function getSanitizedUser(user: User) {
