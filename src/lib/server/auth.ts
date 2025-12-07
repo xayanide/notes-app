@@ -59,7 +59,8 @@ export async function verifyPassword(hashedPassword: string, password: string) {
 }
 
 export async function getNewAccessToken(user: User) {
-  const now = Math.floor(Date.now() / 1000);
+  const nowMs = Date.now();
+  const nowSec = Math.floor(nowMs / 1000);
   const jwtBuilder = new SignJWT({
     userId: user.id,
     userRole: user.role,
@@ -67,22 +68,23 @@ export async function getNewAccessToken(user: User) {
     version: user.accessTokenVersion,
   });
   jwtBuilder.setProtectedHeader(JWT_PROTECTED_HEADERS);
-  jwtBuilder.setIssuedAt(now);
-  jwtBuilder.setExpirationTime(now + ACCESS_EXPIRES_SECONDS);
+  jwtBuilder.setIssuedAt(nowSec);
+  jwtBuilder.setExpirationTime(nowSec + ACCESS_EXPIRES_SECONDS);
   const accessToken = await jwtBuilder.sign(ACCESS_SECRET_KEY);
   return accessToken;
 }
 
 export async function getNewRefreshToken(user: User) {
-  const now = Math.floor(Date.now() / 1000);
+  const nowMs = Date.now();
+  const nowSec = Math.floor(nowMs / 1000);
   const uuid = nodeCrypto.randomUUID();
   const userId = user.id;
   const jwtBuilder = new SignJWT({ userId, jti: uuid });
   jwtBuilder.setProtectedHeader(JWT_PROTECTED_HEADERS);
-  jwtBuilder.setIssuedAt(now);
-  jwtBuilder.setExpirationTime(now + REFRESH_EXPIRES_SECONDS);
+  jwtBuilder.setIssuedAt(nowSec);
+  jwtBuilder.setExpirationTime(nowSec + REFRESH_EXPIRES_SECONDS);
   const refreshToken = await jwtBuilder.sign(REFRESH_SECRET_KEY);
-  const expiresAt = new Date(Date.now() + REFRESH_EXPIRES_SECONDS * 1000);
+  const expiresAt = new Date(nowMs + REFRESH_EXPIRES_SECONDS * 1000);
   await prisma.refreshToken.create({
     data: { token: refreshToken, userId, expiresAt },
   });
